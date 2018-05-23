@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">BiblioSilencer</string>
+
+    <!-- stringhe relative al menu -->
+    <string name="menuAudio">Impostazioni audio</string>
+    <string name="menuWidget">Impostazioni widget</string>
+    <string name="menuAbout">About BiblioSilencer</string>
+
+</resources>
