@@ -16,6 +16,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".AboutActivity">
+
+        </activity>
+        <activity android:name=".AudioSettingsActivity">
+
+        </activity>
+        <activity android:name=".WidgetSettingsActivity">
+
+        </activity>
     </application>
 
 </manifest>
