@@ -10,6 +10,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -148,11 +149,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 == PackageManager.PERMISSION_GRANTED) {
             // PERMESSI OK
             sensingButton.setEnabled(true);
+            taraSensore();
         } else {
             // Permission is missing and must be requested.
             requestRecordAudioPermission();
         }
-        // END_INCLUDE(startCamera)
     }
 
     /**
@@ -173,10 +174,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void onClick(View v) {
         if (v.getId() == R.id.taratura) {
+            Log.e("Errore","-- Calibrating microphone -- ");
             preparaMicrofono();
-            taraSensore();
         }
         if (v.getId() == R.id.sensing) {
+            Log.e("Errore","-- Starting sensing task -- ");
             sensingActivation();
             //isTarato = true;
         }
@@ -209,7 +211,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void taraSensore() {
         //Sound Meter
         recorder = new MediaRecorder();
-        recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION);
+        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
         timer = new Timer();
@@ -246,9 +248,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         if (checkAmp > maxAmpReached)
                             maxAmpReached = checkAmp;
 
-                        sound.setText("" + Math.round(amplitudeDb) + " dB - CONTATORE: " + contatore + " - MAX: " + maxAmpReached);
+                        sound.setText("" + Math.round(amplitudeDb));
 
-                        if (contatore == 0) {
+                        /*if (contatore == 0) {
                             if (maxAmpReached >= 10 && maxAmpReached < 20) {
                                 mp.start();
                                 maxAmpReached = 0.0;
@@ -276,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     ie.printStackTrace();
                                 }
                             }
-                        }
+                        }*/
 
                         contatore ++;
 
@@ -288,7 +290,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         samples_sum += amplitude;
                         silenzio = 20 * Math.log10((double)Math.abs((samples_sum/samples)));
                         if (samples == 20) {
-                            sound.setText("Taratura completata. Silenzio = " + silenzio);
+                            sound.setText("Silenzio = " + Math.round(silenzio));
                             isTarato = true;
                             timer.cancel();
                             sensingButton.setEnabled(true);
