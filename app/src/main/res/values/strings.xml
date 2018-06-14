@@ -4,6 +4,24 @@
     <!-- stringhe relative al menu -->
     <string name="menuAudio">Impostazioni audio</string>
     <string name="menuWidget">Impostazioni widget</string>
+    <string name="menuLibraries">Ricerca biblioteche</string>
     <string name="menuAbout">About BiblioSilencer</string>
+
+    <string name="next">NEXT</string>
+    <string name="skip">SKIP</string>
+    <string name="start">GOT IT</string>
+    <string name="permesso">REQUEST</string>
+
+    <string name="slide_1_title">BiblioSilencer</string>
+    <string name="slide_1_desc">The easiest way to keep your library quiet!</string>
+
+    <string name="slide_2_title">AUDIO PERMISSIONS</string>
+    <string name="slide_2_desc">This will let BiblioSilencer to hear noise all around you!</string>
+
+    <string name="slide_3_title">GPS PERMISSIONS</string>
+    <string name="slide_3_desc">And this to find quietest libraries all around your place!</string>
+
+    <string name="play_again_desc">To see the welcome slider again, goto Settings -> apps -> welcome slider -> clear data</string>
+    <string name="play_again">Play Again</string>
 
 </resources>

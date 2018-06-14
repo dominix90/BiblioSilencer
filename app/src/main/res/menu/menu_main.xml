@@ -6,6 +6,8 @@
                 android:title="@string/menuAudio"/>
         <item   android:id="@+id/menuWidget"
                 android:title="@string/menuWidget"/>
+        <item   android:id="@+id/menuLibraries"
+            android:title="@string/menuLibraries"/>
     </group>
     <group>
         <item   android:id="@+id/menuAbout"
