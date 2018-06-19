@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    
+    <ImageView
+        android:id="@+id/biblioImage"
+        android:src="@drawable/ic_library"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:contentDescription="@string/biblio_item_desc"
+        android:paddingLeft="10dp"
+        android:paddingRight="20dp"
+        />
+    
+    <TextView
+        android:id="@+id/biblioName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_toRightOf="@id/biblioImage"
+        android:paddingBottom="10dp"
+        android:text=""
+        android:textSize="20dp"
+        android:textColor="@color/bianco"
+        />
+
+    <TextView
+        android:id="@+id/latitude"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/biblioName"
+        android:layout_below="@id/biblioName"
+        android:paddingBottom="10dp"
+        android:text=""
+        android:textSize="15dp"
+        android:textColor="@color/bianco"
+        android:textStyle="italic"
+        />
+
+    <TextView
+        android:id="@+id/longitude"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/biblioName"
+        android:layout_below="@id/latitude"
+        android:text=""
+        android:textSize="15dp"
+        android:textColor="@color/bianco"
+        android:paddingBottom="10dp"
+        android:textStyle="italic"
+        />
+
+</RelativeLayout>

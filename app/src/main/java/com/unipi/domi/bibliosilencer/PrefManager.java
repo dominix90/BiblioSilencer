@@ -13,9 +13,10 @@ public class PrefManager {
     int PRIVATE_MODE = 0;
 
     // Shared preferences file name
-    private static final String PREF_NAME = "bibliosilencer-welcome";
-
+    private static final String PREF_NAME = "bibliosilencer-pref";
     private static final String IS_FIRST_TIME_LAUNCH = "IsFirstTimeLaunch";
+    private static final String IS_AUDIO_ON = "IsAudioOn";
+    private static final String WIDGET_COLOR = "WidgetColor";
 
     public PrefManager(Context context) {
         this._context = context;
@@ -30,6 +31,15 @@ public class PrefManager {
 
     public boolean isFirstTimeLaunch() {
         return pref.getBoolean(IS_FIRST_TIME_LAUNCH, true);
+    }
+
+    public void setAudio(boolean audioOn) {
+        editor.putBoolean(IS_AUDIO_ON, audioOn);
+        editor.commit();
+    }
+
+    public boolean isAudioOn() {
+        return pref.getBoolean(IS_AUDIO_ON, true);
     }
 
 }

@@ -1,56 +1,55 @@
 package com.unipi.domi.bibliosilencer;
 
 import android.content.Intent;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
-import android.provider.Settings;
 
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import com.google.android.gms.maps.MapView;
 
 
 public class MainActivity extends AppCompatActivity {
 
-    //ATTRIBUTI
-    //--- ATTRIBUTI ---
+    /**
+     * ATTRIBUTI
+     */
+
+    //CONTROLLO PREFERENZE
+    private PrefManager prefManager;
+    private boolean audioOn = false;
+
+
     //LAYOUT
-    TextView decibel;
-    TextView lat;
-    TextView lon;
-    Button btnStart;
-    Button btnStop;
+    private TextView decibel;
+    private TextView lat;
+    private TextView lon;
+    private Button btnStart;
+    private Button btnStop;
+    private DrawerLayout mDrawerLayout;
+    private ProgressBar progressBar;
+    private TextView progressBarText;
+
     //SUONI
-    MediaPlayer mp;
-    MediaPlayer mp1;
-    MediaPlayer mp2;
+    private MediaPlayer mp;
+    private MediaPlayer mp1;
+    private MediaPlayer mp2;
+
     //PERMESSI
     private final int MY_PERMISSIONS_REQUEST_RECORD_AUDIO = 0;
-    //TARATURA
-    boolean isTarato = false;
-    double silenzio = 0.0;
-    int samples = 0;
-    int samples_sum = 0;
-    /**
-    //REGISTAZIONE
-    Timer timer;
-    MediaRecorder recorder;
-     */
-    int contatore = 0;
+
     double maxAmpReached = 0.0; //massima ampiezza raggiunta nell'intervallo di 15 secondi
 
     /**
@@ -62,42 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private AudioRecord recorder = null;
     private Thread recordingThread = null;
     private boolean isRecording = false;
-    private String currentValueDb = "";
     int initialDelay = 0;
-
-    /**
-     * PARAMETRI PER GPS
-     */
-    //Attributi
-    LocationManager locationManager;
-
-    private LocationListener locationListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(Location location) {
-            if (location != null) {
-                lat.setText("Lat: " + Double.toString(location.getLatitude()));
-                lon.setText("Long: " + Double.toString(location.getLongitude()));
-            } else {
-                Log.e("GPS error -->","Location is null");
-            }
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            startActivity(intent);
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,22 +69,58 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Controllo se l'audio è attivo
+        prefManager = new PrefManager(this);
+        if (prefManager.isAudioOn()) {
+            audioOn = true;
+        }
+
+        //Menu
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                        
+                        // close drawer when item is tapped
+                        mDrawerLayout.closeDrawers();
+
+                        switch (menuItem.getItemId()) {
+                            case R.id.menuSettings:
+                                newActivity(menuItem.getItemId());
+                                return true;
+                            case R.id.menuAbout:
+                                newActivity(menuItem.getItemId());
+                                return true;
+                            case R.id.menuLibraries:
+                                newActivity(menuItem.getItemId());
+                                return true;
+                        }
+
+                        return true;
+                    }
+                });
+
         //Layout toolbar
-        Toolbar mainToolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        Toolbar mainToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mainToolbar);
+        ActionBar actionbar = getSupportActionBar();
+        actionbar.setDisplayHomeAsUpEnabled(true);
+        actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
+        mainToolbar.setLogo(R.drawable.logo_text);
 
         //TextView decibel
         decibel = new TextView(this);
         decibel = (TextView) findViewById(R.id.decibel);
         decibel.setText("0.00 dB");
 
-        //TextView decibel
-        lat = new TextView(this);
-        lat = (TextView) findViewById(R.id.latitude);
-
-        //TextView decibel
-        lon = new TextView(this);
-        lon = (TextView) findViewById(R.id.longitude);
+        //Progress bar
+        progressBar = (ProgressBar) findViewById(R.id.progressBarMain);
+        progressBar.setVisibility(View.GONE);
+        progressBarText = (TextView) findViewById(R.id.progressBarTextMain);
+        progressBarText.setVisibility(View.GONE);
 
         //Attivazione bottoni
         setButtonHandlers();
@@ -129,6 +129,25 @@ public class MainActivity extends AppCompatActivity {
         //Audio Record
         int bufferSize = AudioRecord.getMinBufferSize(RECORDER_SAMPLERATE,
                 RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        //Controllo se l'audio è attivo
+        prefManager = new PrefManager(this);
+        if (prefManager.isAudioOn()) {
+            audioOn = true;
+        } else {
+            audioOn = false;
+        }
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        enableButtons(false);
+        stopRecording();
     }
 
     //Nuova activity
@@ -141,12 +160,8 @@ public class MainActivity extends AppCompatActivity {
             return;
 
         switch (idActivity) {
-            case R.id.menuAudio:
-                intent = new Intent(this, AudioSettingsActivity.class);
-                startActivity(intent);
-                return;
-            case R.id.menuWidget:
-                intent = new Intent(this, WidgetSettingsActivity.class);
+            case R.id.menuSettings:
+                intent = new Intent(this, SettingsActivity.class);
                 startActivity(intent);
                 return;
             case R.id.menuAbout:
@@ -161,208 +176,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Gestione dei click sul menu
         switch (item.getItemId()) {
-            case R.id.menuAudio:
-                newActivity(item.getItemId());
-                return true;
-            case R.id.menuWidget:
-                newActivity(item.getItemId());
-                return true;
-            case R.id.menuAbout:
-                newActivity(item.getItemId());
-                return true;
-            case R.id.menuLibraries:
-                newActivity(item.getItemId());
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-//                                           @NonNull int[] grantResults) {
-//        // BEGIN_INCLUDE(onRequestPermissionsResult)
-//        if (requestCode == MY_PERMISSIONS_REQUEST_RECORD_AUDIO) {
-//            // Request for RECORD AUDIO permission.
-//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                // Permission has been granted.
-//                sensingButton.setEnabled(true);
-//            } else {
-//                // Permission request was denied.
-//
-//            }
-//        }
-//        // END_INCLUDE(onRequestPermissionsResult)
-//    }
-//
-//    private void preparaMicrofono() {
-//        // Check dei permessi del microfono
-//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-//                == PackageManager.PERMISSION_GRANTED) {
-//            // PERMESSI OK
-//            sensingButton.setEnabled(true);
-//            taraSensore();
-//        } else {
-//            // Permission is missing and must be requested.
-//            requestRecordAudioPermission();
-//        }
-//    }
-//
-//    /**
-//     * Requests the {@link android.Manifest.permission#RECORD_AUDIO} permission.
-//     * If an additional rationale should be displayed, the user has to launch the request from
-//     * a SnackBar that includes additional information.
-//     */
-//    private void requestRecordAudioPermission() {
-//        // I permessi non sono garantiti e devono essere richieste.
-//        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO)) {
-//            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.RECORD_AUDIO}, MY_PERMISSIONS_REQUEST_RECORD_AUDIO);
-//        }
-//        else {
-//            // Request the permission. The result will be received in onRequestPermissionResult().
-//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, MY_PERMISSIONS_REQUEST_RECORD_AUDIO);
-//        }
-//    }
-//
-//    public void onClick(View v) {
-//        if (v.getId() == R.id.taratura) {
-//            Log.e("Errore","-- Calibrating microphone -- ");
-//            preparaMicrofono();
-//        }
-//        if (v.getId() == R.id.sensing) {
-//            Log.e("Errore","-- Starting sensing task -- ");
-//            sensingActivation();
-//            //isTarato = true;
-//        }
-//    }
-//
-//    public void sensingActivation() {
-//        //Sound Meter
-//        //MediaRecorder recorder = new MediaRecorder();
-//        //recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-//        //recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-//        //recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-//        Timer timer = new Timer();
-//        timer.scheduleAtFixedRate(new RecorderTask(recorder), 0, 500);
-//
-//        //MediaPlayer
-//        mp = MediaPlayer.create(getApplicationContext(), R.raw.sh);
-//        mp1 = MediaPlayer.create(getApplicationContext(), R.raw.shh);
-//        mp2 = MediaPlayer.create(getApplicationContext(), R.raw.cumpa);
-//
-//        /*recorder.setOutputFile("/dev/null");
-//
-//        try {
-//            recorder.prepare();
-//            recorder.start();
-//        } catch(Exception e) {
-//            e.printStackTrace();
-//        }*/
-//    }
-//
-//    public void taraSensore() {
-//        //Sound Meter
-//        recorder = new MediaRecorder();
-//        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-//        recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-//        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-//        timer = new Timer();
-//        timer.scheduleAtFixedRate(new RecorderTask(recorder), 0, 250);
-//
-//        recorder.setOutputFile("/dev/null");
-//
-//        try {
-//            recorder.prepare();
-//            recorder.start();
-//        } catch(Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//    }
-//
-//    private class RecorderTask extends TimerTask {
-//        TextView sound = (TextView) findViewById(R.id.decibel);
-//        private MediaRecorder recorder;
-//
-//        public RecorderTask(MediaRecorder recorder) {
-//            this.recorder = recorder;
-//        }
-//
-//        public void run() {
-//            runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    int amplitude = recorder.getMaxAmplitude();
-//                    double amplitudeDb = 20 * Math.log10((double)Math.abs(amplitude));
-//                    double checkAmp = amplitudeDb - silenzio;
-//                    if (isTarato) {
-//                        //controllo se il massimo livello di pressione acustica è stato superato
-//                        if (checkAmp > maxAmpReached)
-//                            maxAmpReached = checkAmp;
-//
-//                        sound.setText("" + Math.round(amplitudeDb));
-//
-//                        /*if (contatore == 0) {
-//                            if (maxAmpReached >= 10 && maxAmpReached < 20) {
-//                                mp.start();
-//                                maxAmpReached = 0.0;
-//                                try {
-//                                    Thread.sleep(5000);
-//                                } catch (InterruptedException ie) {
-//                                    ie.printStackTrace();
-//                                }
-//                            }
-//                            if (maxAmpReached >= 20 && maxAmpReached < 30) {
-//                                mp1.start();
-//                                maxAmpReached = 0.0;
-//                                try {
-//                                    Thread.sleep(5000);
-//                                } catch (InterruptedException ie) {
-//                                    ie.printStackTrace();
-//                                }
-//                            }
-//                            if (maxAmpReached >= 30) {
-//                                mp2.start();
-//                                maxAmpReached = 0.0;
-//                                try {
-//                                    Thread.sleep(5000);
-//                                } catch (InterruptedException ie) {
-//                                    ie.printStackTrace();
-//                                }
-//                            }
-//                        }*/
-//
-//                        contatore ++;
-//
-//                        if (contatore == 30)
-//                            contatore = 0;
-//                    }
-//                    else {
-//                        samples += 1;
-//                        samples_sum += amplitude;
-//                        silenzio = 20 * Math.log10((double)Math.abs((samples_sum/samples)));
-//                        if (samples == 20) {
-//                            sound.setText("Silenzio = " + Math.round(silenzio));
-//                            isTarato = true;
-//                            timer.cancel();
-//                            sensingButton.setEnabled(true);
-//                        }
-//                    }
-//                }
-//            });
-//        }
-//    }
-
 
     /**
      * Utilizzo Audio Record - TEST
@@ -387,6 +210,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void startRecording() {
 
+        //MediaPlayer
+        mp = MediaPlayer.create(getApplicationContext(), R.raw.sh);
+        mp1 = MediaPlayer.create(getApplicationContext(), R.raw.shh);
+        mp2 = MediaPlayer.create(getApplicationContext(), R.raw.cumpa);
+
         recorder = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION,
                 RECORDER_SAMPLERATE, RECORDER_CHANNELS,
                 RECORDER_AUDIO_ENCODING, BufferElements2Rec * BytesPerElement);
@@ -399,35 +227,42 @@ public class MainActivity extends AppCompatActivity {
                 short sData[] = new short[BufferElements2Rec];
 
                 int recordDelay = 0;
+                boolean soundCheck = true;
+                int soundCheckCount = 0;
 
                 while (isRecording) {
                     /**
                      * Aggiunta di un delay
-                     * I valori iniziali della registrazione sono troppo alti
-                     * come in presenza di un disturbo. Pian piano questi valori si
-                     * normalizzano e possiamo iniziare ad utilizzare i dati.
+                     * I valori iniziali della registrazione sono troppo alti,
+                     * probabilmente il problema è dovuto all'attivazione del microfono.
+                     * Pian piano questi valori si normalizzano e possiamo iniziare ad utilizzare i dati.
                      */
-                    Log.e("Delay -->", (Integer.toString(initialDelay)));
-                    initialDelay++;
-                    if (initialDelay < 10000)
-                        continue;
+
 
                     // gets the voice output from microphone to byte format
                     double sum = 0;
                     int readSize = recorder.read(sData, 0, BufferElements2Rec);
 
+                    initialDelay++;
+                    if (initialDelay < 300) {
+                        Log.e("Delay -->", (Integer.toString(initialDelay)));
+                        continue;
+                    }
+
                     recordDelay++;
-                    if (recordDelay < 20)
+                    soundCheckCount++;
+                    if (recordDelay < 10)
                         continue;
 
                     for (int i = 0; i < readSize; i++) {
                         sum += sData[i] * sData[i];
                     }
+
                     if (readSize > 0) {
                         final double amplitude = sum / readSize;
                         recordDelay = 0;
-                        //TextView decibel
 
+                        //TextView decibel
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -436,6 +271,62 @@ public class MainActivity extends AppCompatActivity {
                                 sound.setText(currentValue);
                             }
                         });
+
+                        Log.i("soundCheckCount -->", String.valueOf(soundCheckCount));
+                        if (soundCheckCount == 250)
+                            soundCheck = true;
+
+                        //TextView decibel
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressBar.setVisibility(View.GONE);
+                                progressBarText.setVisibility(View.GONE);
+                            }
+                        });
+
+                        //Qui va fatto il controllo del livello corrente di ampiezza, se è elevato va inviata la notifica (audio/testuale)
+                        if (soundCheck) {
+                            soundCheckCount = 0;
+                            Double amplitudeDB = 20 * Math.log10(Math.abs(Math.sqrt(amplitude)));
+                            if (amplitudeDB > maxAmpReached)
+                                maxAmpReached = amplitudeDB;
+                            if (audioOn) {
+                                //Se il livello del suono è oltre un certo livello viene inviata la notifica audio
+                                if (maxAmpReached >= 50 && maxAmpReached < 60) {
+                                    mp.start();
+                                    soundCheck = false;
+                                    maxAmpReached = 0;
+                                }
+                                if (maxAmpReached >= 60 && maxAmpReached < 70) {
+                                    mp1.start();
+                                    soundCheck = false;
+                                    maxAmpReached = 0;
+                                }
+                                if (maxAmpReached >= 70) {
+                                    mp2.start();
+                                    soundCheck = false;
+                                    maxAmpReached = 0;
+                                }
+                            } else {
+                                //Se il livello del suono è oltre un certo livello viene inviata la notifica testuale
+                                if (maxAmpReached >= 50 && maxAmpReached < 60) {
+                                    soundCheck = false;
+                                    maxAmpReached = 0;
+                                    //mp.start();
+                                }
+                                if (maxAmpReached >= 60 && maxAmpReached < 70) {
+                                    soundCheck = false;
+                                    maxAmpReached = 0;
+                                    //mp1.start();
+                                }
+                                if (maxAmpReached >= 70) {
+                                    soundCheck = false;
+                                    maxAmpReached = 0;
+                                    //mp2.start();
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -473,7 +364,8 @@ public class MainActivity extends AppCompatActivity {
             switch (v.getId()) {
                 case R.id.btnStart: {
                     enableButtons(true);
-                    locationManager.requestLocationUpdates("gps",5000,0, locationListener);
+                    progressBar.setVisibility(View.VISIBLE);
+                    progressBarText.setVisibility(View.VISIBLE);
                     startRecording();
                     break;
                 }

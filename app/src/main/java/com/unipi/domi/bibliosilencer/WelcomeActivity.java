@@ -44,10 +44,10 @@ public class WelcomeActivity extends AppCompatActivity {
 
         // Controllo se è il primo avvio dell'app prima di chiamare setContentView()
         prefManager = new PrefManager(this);
-        /** if (!prefManager.isFirstTimeLaunch()) {
+        if (!prefManager.isFirstTimeLaunch()) {
             launchHomeScreen();
             finish();
-        }*/
+        }
 
         // Rendo la barra delle notifiche trasparente
         if (Build.VERSION.SDK_INT >= 21) {

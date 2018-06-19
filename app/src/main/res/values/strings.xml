@@ -2,8 +2,7 @@
     <string name="app_name">BiblioSilencer</string>
 
     <!-- stringhe relative al menu -->
-    <string name="menuAudio">Impostazioni audio</string>
-    <string name="menuWidget">Impostazioni widget</string>
+    <string name="menuSettings">Impostazioni audio</string>
     <string name="menuLibraries">Ricerca biblioteche</string>
     <string name="menuAbout">About BiblioSilencer</string>
 
@@ -23,5 +22,12 @@
 
     <string name="play_again_desc">To see the welcome slider again, goto Settings -> apps -> welcome slider -> clear data</string>
     <string name="play_again">Play Again</string>
+    <string name="pref_widget_color">Colore Widget</string>
+    <string name="pref_audio_on">Notifica audio</string>
+    <string name="pref_audio_on_summary">In caso di rumore elevato l\'applicazione invierà una notifica audio all\'utente</string>
+    <string name="pref_audio_title">Impostazioni audio</string>
+    <string name="pref_widget_title">Impostazioni widget</string>
+    <string name="biblio_item_desc">Biblioteca</string>
+    <string name="menuHome">Home</string>
 
 </resources>

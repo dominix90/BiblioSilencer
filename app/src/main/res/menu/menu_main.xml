@@ -2,10 +2,10 @@
 <menu
     xmlns:android="http://schemas.android.com/apk/res/android">
     <group>
-        <item   android:id="@+id/menuAudio"
-                android:title="@string/menuAudio"/>
-        <item   android:id="@+id/menuWidget"
-                android:title="@string/menuWidget"/>
+        <item   android:id="@+id/menuMain"
+            android:title="@string/menuHome"/>
+        <item   android:id="@+id/menuSettings"
+                android:title="@string/menuSettings"/>
         <item   android:id="@+id/menuLibraries"
             android:title="@string/menuLibraries"/>
     </group>

@@ -1,5 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen >
 
 
+<!-- Settings Activity-->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:title="@string/pref_audio_title"
+        android:key="bibliosilencer-pref">
+        <CheckBoxPreference
+            android:key="IsAudioOn"
+            android:summary="@string/pref_audio_on_summary"
+            android:title="@string/pref_audio_on"
+            android:defaultValue="true" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/pref_widget_title"
+        android:key="bibliosilencer-pref">
+        <Preference
+            android:key="WidgetColor"
+            android:title="@string/pref_widget_color"/>
+    </PreferenceCategory>
 </PreferenceScreen>
