@@ -2,8 +2,8 @@
     <string name="app_name">BiblioSilencer</string>
 
     <!-- stringhe relative al menu -->
-    <string name="menuSettings">Impostazioni audio</string>
-    <string name="menuLibraries">Ricerca biblioteche</string>
+    <string name="menuSettings">Settings</string>
+    <string name="menuLibraries">Libraries</string>
     <string name="menuAbout">About BiblioSilencer</string>
 
     <string name="next">NEXT</string>
@@ -22,12 +22,22 @@
 
     <string name="play_again_desc">To see the welcome slider again, goto Settings -> apps -> welcome slider -> clear data</string>
     <string name="play_again">Play Again</string>
-    <string name="pref_widget_color">Colore Widget</string>
-    <string name="pref_audio_on">Notifica audio</string>
-    <string name="pref_audio_on_summary">In caso di rumore elevato l\'applicazione invierà una notifica audio all\'utente</string>
-    <string name="pref_audio_title">Impostazioni audio</string>
-    <string name="pref_widget_title">Impostazioni widget</string>
-    <string name="biblio_item_desc">Biblioteca</string>
+    <string name="pref_audio_on">Audio notification</string>
+    <string name="pref_audio_on_summary">In case of high noise the application will send an audio notification to the user</string>
+    <string name="pref_audio_title">Audio settings</string>
+    <string name="biblio_item_desc">Library</string>
     <string name="menuHome">Home</string>
+    <string name="search_description">Press the search button on the top right corner\n to search for libraries nearby you</string>
+    <string name="stats_description">Press the search button on the top right corner\n to load noise statistics about libraries you visited so far</string>
+    <string name="loading_libraries">Loading libraries...</string>
+    <string name="menuStats">Stats</string>
+    <string name="current">CURRENT</string>
+    <string name="min_value">MIN.VALUE</string>
+    <string name="max_value">MAX.VALUE</string>
+    <string name="btn_start">START</string>
+    <string name="btn_stop">STOP</string>
+    <string name="attivazione_del_microfono">Activating microphone...</string>
+    <string name="developed_by">Developed by Domenico Minici</string>
+    <string name="zero_value">0.00 dB</string>
 
 </resources>

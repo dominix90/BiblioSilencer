@@ -16,10 +16,13 @@ public class CustomAdapter extends BaseAdapter {
 
     private Context context;
     private List<Biblioteca> listaBiblioteche;
+    private double latitude, longitude;
 
-    public CustomAdapter(Context context, List<Biblioteca> listaBiblioteche) {
+    public CustomAdapter(Context context, List<Biblioteca> listaBiblioteche, double latitude, double longitude) {
         this.context = context;
         this.listaBiblioteche = listaBiblioteche;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     @Override
@@ -42,8 +45,8 @@ public class CustomAdapter extends BaseAdapter {
      */
     private class ViewHolder {
         TextView nomeBiblioteca;
-        TextView latitudineBiblioteca;
-        TextView longitudineBiblioteca;
+        TextView distanza;
+        TextView averageSound;
     }
 
     @Override
@@ -57,14 +60,19 @@ public class CustomAdapter extends BaseAdapter {
             holder = new ViewHolder();
 
             holder.nomeBiblioteca = (TextView) convertView.findViewById(R.id.biblioName);
-            holder.latitudineBiblioteca = (TextView) convertView.findViewById(R.id.latitude);
-            holder.longitudineBiblioteca = (TextView) convertView.findViewById(R.id.longitude);
+            holder.distanza = (TextView) convertView.findViewById(R.id.distanza);
+            holder.averageSound = (TextView) convertView.findViewById(R.id.averageSound);
 
             Biblioteca biblioteca = listaBiblioteche.get(position);
 
             holder.nomeBiblioteca.setText(biblioteca.getName());
-            holder.latitudineBiblioteca.setText("Lat: " + biblioteca.getLatitude());
-            holder.longitudineBiblioteca.setText("Long: " + biblioteca.getLongitude());
+            holder.distanza.setText("Distance: " + biblioteca.HaversineInM(latitude, longitude) + "m");
+            holder.averageSound.setText("Average noise: " + biblioteca.getAverageSound() + "dB");
+
+            if (latitude == 0)
+                holder.distanza.setVisibility(View.GONE);
+            else
+                holder.averageSound.setVisibility(View.GONE);
         }
         return convertView;
     }

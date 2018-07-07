@@ -34,9 +34,6 @@ public class WelcomeActivity extends AppCompatActivity {
     private int[] layouts;
     private Button btnSkip, btnNext, btnMic, btnGps;
     private PrefManager prefManager;
-    //Attributi
-    LocationManager locationManager;
-    LocationListener locationListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,25 +98,6 @@ public class WelcomeActivity extends AppCompatActivity {
                 }
             }
         });
-
-        /**
-         *
-        btnGps.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //chiamo il metodo per la richiesta dei permessi GPS
-                richiesaGpsButton();
-            }
-        });
-
-        btnMic.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //chiamo il metodo per la richieste dei permessi del microfono
-                richiesaMicButton();
-            }
-        });
-         */
     }
 
     private void richiesaGpsButton() {
@@ -164,10 +142,6 @@ public class WelcomeActivity extends AppCompatActivity {
         }
     }
 
-    private void ottieniPosizioneGps() {
-        //locationManager.requestLocationUpdates("gps", 5000, 0, locationListener);
-    }
-
     private void addBottomDots(int currentPage) {
         dots = new TextView[layouts.length];
 
@@ -199,7 +173,6 @@ public class WelcomeActivity extends AppCompatActivity {
 
     //  Listener per il cambio pagina
     ViewPager.OnPageChangeListener viewPagerPageChangeListener = new ViewPager.OnPageChangeListener() {
-
         @Override
         public void onPageSelected(int position) {
             addBottomDots(position);

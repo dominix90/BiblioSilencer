@@ -2,9 +2,12 @@
 <resources>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorPrimaryLight">#acb4ed</color>
     <color name="colorAccent">#FF4081</color>
     <color name="bianco">#ffffff</color>
     <color name="nero">#000000</color>
+    <color name="rosso">#c80000</color>
+    <color name="verde">#00b22f</color>
 
 
     <!-- Screens background color-->

@@ -16,7 +16,7 @@ public class PrefManager {
     private static final String PREF_NAME = "bibliosilencer-pref";
     private static final String IS_FIRST_TIME_LAUNCH = "IsFirstTimeLaunch";
     private static final String IS_AUDIO_ON = "IsAudioOn";
-    private static final String WIDGET_COLOR = "WidgetColor";
+    private static final String AVERAGE_SOUNDS = "averageSounds";
 
     public PrefManager(Context context) {
         this._context = context;
@@ -40,6 +40,15 @@ public class PrefManager {
 
     public boolean isAudioOn() {
         return pref.getBoolean(IS_AUDIO_ON, true);
+    }
+
+    public void saveAverageSoundList(String soundString) {
+        editor.putString(AVERAGE_SOUNDS, soundString);
+        editor.commit();
+    }
+
+    public String getAverageSoundList() {
+        return pref.getString(AVERAGE_SOUNDS, "");
     }
 
 }

@@ -4,12 +4,14 @@
     <group>
         <item   android:id="@+id/menuMain"
             android:title="@string/menuHome"/>
-        <item   android:id="@+id/menuSettings"
-                android:title="@string/menuSettings"/>
         <item   android:id="@+id/menuLibraries"
             android:title="@string/menuLibraries"/>
+        <item   android:id="@+id/menuStats"
+            android:title="@string/menuStats"/>
     </group>
     <group>
+        <item   android:id="@+id/menuSettings"
+            android:title="@string/menuSettings"/>
         <item   android:id="@+id/menuAbout"
             android:title="@string/menuAbout"/>
     </group>

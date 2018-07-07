@@ -52,11 +52,11 @@
             android:layout_below="@id/progressBar" />
 
         <TextView
-            android:id="@+id/infoText"
+            android:id="@+id/infoTextStats"
             android:textColor="@color/bianco"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/search_description"
+            android:text="@string/stats_description"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:textAlignment="center"/>
@@ -77,13 +77,14 @@
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:src="@drawable/ic_search"
-                android:layout_gravity="right"/>
+                android:layout_gravity="right"
+                />
 
         </android.support.v7.widget.Toolbar>
 
 
         <ListView
-            android:id="@+id/listaBiblioteche"
+            android:id="@+id/listaStatsBiblioteche"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"

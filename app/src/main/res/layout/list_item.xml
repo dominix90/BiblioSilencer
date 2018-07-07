@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/bianco">
     
     <ImageView
         android:id="@+id/biblioImage"
-        android:src="@drawable/ic_library"
+        android:src="@drawable/ic_library_black"
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:contentDescription="@string/biblio_item_desc"
@@ -22,11 +23,11 @@
         android:paddingBottom="10dp"
         android:text=""
         android:textSize="20dp"
-        android:textColor="@color/bianco"
+        android:textColor="@color/nero"
         />
 
     <TextView
-        android:id="@+id/latitude"
+        android:id="@+id/distanza"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@id/biblioName"
@@ -34,19 +35,19 @@
         android:paddingBottom="10dp"
         android:text=""
         android:textSize="15dp"
-        android:textColor="@color/bianco"
+        android:textColor="@color/nero"
         android:textStyle="italic"
         />
 
     <TextView
-        android:id="@+id/longitude"
+        android:id="@+id/averageSound"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@id/biblioName"
-        android:layout_below="@id/latitude"
+        android:layout_below="@id/distanza"
         android:text=""
         android:textSize="15dp"
-        android:textColor="@color/bianco"
+        android:textColor="@color/nero"
         android:paddingBottom="10dp"
         android:textStyle="italic"
         />

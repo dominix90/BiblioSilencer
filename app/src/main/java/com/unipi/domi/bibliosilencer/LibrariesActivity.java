@@ -10,11 +10,11 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
-import android.os.SystemClock;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -24,8 +24,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -42,37 +41,25 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 
 public class LibrariesActivity extends AppCompatActivity implements LocationListener, AdapterView.OnItemClickListener {
     /**
      * Parametri per views
      */
 
-    private Button btnSearch;
+    private ImageButton btnSearch;
     private ListView listView;
     private ArrayList<Biblioteca> arrayListBiblioteche;
     private CustomAdapter adapterBiblioteche;
     private ProgressBar progressBar;
-    private TextView progressBarText;
-    private boolean listaPiena = false;
+    private TextView progressBarText, infoText;
+    private DrawerLayout mDrawerLayout;
 
     /**
      * Parametri per GPS
      */
     private LocationManager locationManager;
-    private long uptimeAtResume;
-    private List<String> enabledProviders;
-    private DrawerLayout mDrawerLayout;
-
-    /**
-     * Parametri per request
-     */
-
-    private String mainUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=";
-    private String personalUrl = "&radius=350&keyword=biblioteca&key=AIzaSyDkf5UfwaOpxBnDTnx_MZpuQKw0-D1GnCA";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,12 +69,12 @@ public class LibrariesActivity extends AppCompatActivity implements LocationList
         //Menu
         mDrawerLayout = findViewById(R.id.drawer_layout);
 
-        //Caricamento del layout per il menu
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
-                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+
                         // close drawer when item is tapped
                         mDrawerLayout.closeDrawers();
 
@@ -99,7 +86,10 @@ public class LibrariesActivity extends AppCompatActivity implements LocationList
                                 newActivity(menuItem.getItemId());
                                 return true;
                             case R.id.menuMain:
-                                //ritorno alla main activity
+                                newActivity(menuItem.getItemId());
+                                return true;
+                            case R.id.menuStats:
+                                newActivity(menuItem.getItemId());
                                 return true;
                         }
 
@@ -108,19 +98,20 @@ public class LibrariesActivity extends AppCompatActivity implements LocationList
                 });
 
         //Layout toolbar
-        Toolbar mainToolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar mainToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mainToolbar);
         ActionBar actionbar = getSupportActionBar();
-        actionbar.setDisplayHomeAsUpEnabled(true);
-        actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
-        mainToolbar.setLogo(R.drawable.logo_text);
+        if (actionbar != null) {
+            actionbar.setDisplayHomeAsUpEnabled(true);
+            actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
+        }
 
         //Lista
-        listView = (ListView) findViewById(R.id.listaBiblioteche);
-        arrayListBiblioteche = new ArrayList<Biblioteca>();
+        listView = findViewById(R.id.listaBiblioteche);
+
 
         //Bottone
-        btnSearch = (Button) findViewById(R.id.btnSearch);
+        btnSearch = findViewById(R.id.btnSearch);
 
         //location manager per posizione
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -128,11 +119,26 @@ public class LibrariesActivity extends AppCompatActivity implements LocationList
         //setto gli handler dei vari elementi cliccabili
         setButtonHandlers();
 
+        //Testo informativo
+        infoText = findViewById(R.id.infoText);
+
         //Progress bar
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.progressBar);
         progressBar.setVisibility(View.GONE);
-        progressBarText = (TextView) findViewById(R.id.progressBarText);
+        progressBarText = findViewById(R.id.progressBarText);
         progressBarText.setVisibility(View.GONE);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Gestione dei click sul menu
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     //Nuova activity
@@ -153,10 +159,13 @@ public class LibrariesActivity extends AppCompatActivity implements LocationList
                 intent = new Intent(this, AboutActivity.class);
                 startActivity(intent);
                 return;
-            case R.id.menuLibraries:
-                intent = new Intent(this, LibrariesActivity.class);
+            case R.id.menuMain:
+                intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
                 return;
+            case R.id.menuStats:
+                intent = new Intent(this, StatsActivity.class);
+                startActivity(intent);
         }
     }
 
@@ -182,7 +191,7 @@ public class LibrariesActivity extends AppCompatActivity implements LocationList
     }
 
     private void setButtonHandlers() {
-        ((Button) findViewById(R.id.btnSearch)).setOnClickListener(btnClick);
+        btnSearch.setOnClickListener(btnClick);
         listView.setOnItemClickListener(LibrariesActivity.this);
     }
 
@@ -191,11 +200,7 @@ public class LibrariesActivity extends AppCompatActivity implements LocationList
     public void onLocationChanged(Location location)
     {
         Log.i("Location changed -->", location.toString());
-        if (location!= null) {
-            getBiblioteche(location.getLatitude(),location.getLongitude(), this);
-        } else {
-            Log.e("Errore GPS", "Location is null!");
-        }
+        getBiblioteche(location.getLatitude(),location.getLongitude(), this);
     }
 
     @Override
@@ -217,6 +222,8 @@ public class LibrariesActivity extends AppCompatActivity implements LocationList
             switch (v.getId()) {
                 case R.id.btnSearch: {
                     Log.e("Ricerca posizione -->", "....");
+                    infoText.setVisibility(View.GONE);
+                    listView.setVisibility(View.GONE);
                     progressBar.setVisibility(View.VISIBLE);
                     progressBarText.setVisibility(View.VISIBLE);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -229,12 +236,12 @@ public class LibrariesActivity extends AppCompatActivity implements LocationList
                             return;
                         }
                     }
-                    /**
+                    /*
                      * CODICE SLIDE PROF
                      */
                     Criteria criteria = new Criteria();
                     criteria.setAccuracy(Criteria.ACCURACY_COARSE);
-                    enabledProviders = locationManager.getProviders(criteria, true);
+                    List<String> enabledProviders = locationManager.getProviders(criteria, true);
 
                     if (!enabledProviders.isEmpty())
                     {
@@ -250,7 +257,6 @@ public class LibrariesActivity extends AppCompatActivity implements LocationList
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        //String uri = String.format(Locale.ENGLISH, "geo:%f,%f", Float.parseFloat(arrayListBiblioteche.get(position).getLatitude()), Float.parseFloat(arrayListBiblioteche.get(position).getLongitude()));
         Uri loc = Uri.parse("geo:0,0?q=" + arrayListBiblioteche.get(position).getName());
         Intent intent = new Intent(Intent.ACTION_VIEW, loc);
         this.startActivity(intent);
@@ -259,8 +265,13 @@ public class LibrariesActivity extends AppCompatActivity implements LocationList
     public void getBiblioteche(double lat, double lon, final Context context) {
 
         // url a cui inviare la richiesta
+        String mainUrl = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=";
+        String personalUrl = "&radius=300&keyword=biblioteca&key=AIzaSyDkf5UfwaOpxBnDTnx_MZpuQKw0-D1GnCA";
         String url = mainUrl + String.valueOf(lat) + "," + String.valueOf(lon) + personalUrl;
         Log.i("URL ---> ", url);
+
+        final double lat_distance = lat;
+        final double lon_distance = lon;
 
         //codice per richiesta
         RequestQueue queue = Volley.newRequestQueue(context);
@@ -272,16 +283,18 @@ public class LibrariesActivity extends AppCompatActivity implements LocationList
                     public void onResponse(JSONObject response) {
                         try {
                             JSONArray results = response.getJSONArray("results");
-                            String nome = "";
+                            String nome;
                             double latBiblioteca, lonBiblioteca;
+                            arrayListBiblioteche = new ArrayList<>();
                             for (int i = 0; i < results.length(); i++) {
                                 nome = results.getJSONObject(i).getString("name");
                                 latBiblioteca = Double.parseDouble(results.getJSONObject(i).getJSONObject("geometry").getJSONObject("location").getString("lat"));
                                 lonBiblioteca = Double.parseDouble(results.getJSONObject(i).getJSONObject("geometry").getJSONObject("location").getString("lng"));
                                 arrayListBiblioteche.add(new Biblioteca(nome, lonBiblioteca, latBiblioteca));
                             }
-                            adapterBiblioteche = new CustomAdapter (context, arrayListBiblioteche);
+                            adapterBiblioteche = new CustomAdapter (context, arrayListBiblioteche, lat_distance, lon_distance);
                             listView.setAdapter(adapterBiblioteche);
+                            listView.setVisibility(View.VISIBLE);
                             progressBar.setVisibility(View.GONE);
                             progressBarText.setVisibility(View.GONE);
                             Log.i("Lunghezza inMethod -->", String.valueOf(arrayListBiblioteche.size()));
